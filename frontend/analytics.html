@@ -1,0 +1,1082 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — UNESCO Heritage Monitor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { font-family: 'Inter', sans-serif; background: #F7F5F0; color: #1C1917; min-height: 100vh; }
+
+/* ── NAV ── */
+.top-nav {
+  background: #0C1223;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  height: 52px;
+  position: sticky; top: 0; z-index: 100;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.nav-brand {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px; font-weight: 700;
+  color: #A8C5A0; white-space: nowrap;
+  text-decoration: none;
+}
+.nav-links { display: flex; gap: 0; }
+.nav-link {
+  font-size: 12px; font-weight: 500;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  padding: 0 14px; height: 52px;
+  display: flex; align-items: center;
+  border-bottom: 2px solid transparent;
+  transition: color 0.15s, border-color 0.15s;
+}
+.nav-link:hover { color: rgba(255,255,255,0.85); }
+.nav-link.active { color: #A8C5A0; border-bottom-color: #A8C5A0; }
+
+/* ── PAGE HEADER ── */
+.page-header {
+  background: linear-gradient(135deg, #0C1223 0%, #1C3528 100%);
+  padding: 3rem 2rem 2.5rem;
+}
+.page-header-inner { max-width: 1180px; margin: 0 auto; }
+.page-eyebrow {
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: #A8C5A0; margin-bottom: 0.75rem;
+}
+.page-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 900; color: #fff; line-height: 1.1;
+  margin-bottom: 0.5rem;
+}
+.page-sub { font-size: 14px; color: rgba(255,255,255,0.55); font-weight: 300; }
+
+/* ── MAIN ── */
+.app { max-width: 1180px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+
+/* ── TAB BAR ── */
+.tab-bar-wrap {
+  background: #fff;
+  border: 1px solid #E7E5E0;
+  border-radius: 14px;
+  padding: 6px;
+  display: flex; flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 2rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.tab-btn {
+  border: none; background: transparent;
+  padding: 8px 14px; border-radius: 9px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 600;
+  color: #6B7280; cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  white-space: nowrap;
+  display: flex; align-items: center; gap: 6px;
+}
+.tab-btn:hover { background: #F7F5F0; color: #1C1917; }
+.tab-btn.active { background: #0C1223; color: #A8C5A0; }
+.tab-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: currentColor; opacity: 0.6; flex-shrink: 0;
+}
+
+/* ── QUERY PANEL ── */
+.query-panel { display: none; }
+.query-panel.active { display: block; }
+
+.query-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem; margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.query-number {
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  color: #9CA3AF; margin-bottom: 4px;
+}
+.query-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem; font-weight: 700;
+  color: #1C1917; line-height: 1.2;
+}
+.query-desc {
+  font-size: 13px; color: #6B7280;
+  margin-top: 6px; line-height: 1.6;
+  max-width: 60ch;
+}
+.query-badge {
+  padding: 5px 12px; border-radius: 20px;
+  font-size: 10px; font-weight: 700;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  white-space: nowrap; flex-shrink: 0; align-self: flex-start;
+  margin-top: 4px;
+}
+.badge-sites     { background: #E8F3EC; color: #2D6A4F; }
+.badge-threats   { background: #FEF3C7; color: #92400E; }
+.badge-funding   { background: #E8EEF8; color: #2D4A8A; }
+.badge-visitors  { background: #F3E8FF; color: #5B21B6; }
+.badge-zones     { background: #FEE2E2; color: #991B1B; }
+.badge-dashboard { background: #F0FDF4; color: #166534; }
+.badge-report    { background: #FFF7ED; color: #9A3412; }
+
+/* ── SQL SNIPPET ── */
+.sql-block {
+  background: #0C1223;
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 1.5rem;
+  overflow-x: auto;
+}
+.sql-block pre {
+  font-family: 'Courier New', monospace;
+  font-size: 11.5px; line-height: 1.7;
+  color: #A8C5A0; white-space: pre;
+}
+.sql-kw  { color: #86C6A5; font-weight: 700; }
+.sql-fn  { color: #C4B189; }
+.sql-str { color: #FCA5A5; }
+
+/* ── TABLE ── */
+.table-wrap {
+  background: #fff;
+  border: 1px solid #E7E5E0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+}
+.table-toolbar {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #F3F1ED;
+  gap: 1rem; flex-wrap: wrap;
+}
+.table-count {
+  font-size: 11px; font-weight: 600;
+  color: #9CA3AF; letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.table-search {
+  border: 1px solid #E7E5E0;
+  border-radius: 7px;
+  padding: 5px 10px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: #1C1917;
+  background: #F7F5F0;
+  outline: none; width: 200px;
+}
+.table-search:focus { border-color: #5C8A6E; }
+
+.data-table { width: 100%; border-collapse: collapse; }
+.data-table th {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: #9CA3AF; padding: 10px 14px;
+  text-align: left; white-space: nowrap;
+  background: #FAFAF8;
+  border-bottom: 1px solid #F3F1ED;
+}
+.data-table td {
+  font-size: 12.5px; color: #374151;
+  padding: 10px 14px;
+  border-bottom: 1px solid #F7F5F0;
+  vertical-align: top; max-width: 300px;
+}
+.data-table tr:last-child td { border-bottom: none; }
+.data-table tr:hover td { background: #FAFAF8; }
+
+/* cell badges */
+.cell-pill {
+  display: inline-block;
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.07em; text-transform: uppercase;
+  padding: 2px 8px; border-radius: 20px;
+}
+.pill-yes      { background: #FEE2E2; color: #991B1B; }
+.pill-no       { background: #E8F3EC; color: #2D6A4F; }
+.pill-high     { background: rgba(239,68,68,0.12); color: #DC2626; }
+.pill-critical { background: rgba(239,68,68,0.2); color: #991B1B; }
+.pill-medium   { background: rgba(245,197,24,0.15); color: #92400E; }
+.pill-low      { background: rgba(134,198,165,0.2); color: #065F46; }
+.pill-cultural { background: rgba(168,197,160,0.2); color: #2D6A4F; }
+.pill-natural  { background: rgba(134,198,165,0.2); color: #065F46; }
+.pill-mixed    { background: rgba(196,177,137,0.2); color: #78350F; }
+.pill-safe     { background: #E8F3EC; color: #2D6A4F; }
+.pill-endangered { background: #FEE2E2; color: #991B1B; }
+.pill-ongoing  { background: #E8EEF8; color: #2D4A8A; }
+
+.num-cell { font-family: 'Playfair Display', serif; font-weight: 700; color: #1C1917; }
+.green-num { color: #2D6A4F; }
+.red-num   { color: #DC2626; }
+
+/* ── LOADING / ERROR ── */
+.state-box {
+  padding: 3rem 2rem; text-align: center;
+  font-size: 13px; color: #9CA3AF;
+}
+.state-box.err { color: #991B1B; background: #FEF2F2; border-radius: 10px; }
+.spinner {
+  display: inline-block; width: 20px; height: 20px;
+  border: 2px solid #E7E5E0;
+  border-top-color: #5C8A6E;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  margin-right: 8px; vertical-align: middle;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── STAT CARDS (for summary queries) ── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px; margin-bottom: 1.5rem;
+}
+.stat-card {
+  background: #fff; border: 1px solid #E7E5E0;
+  border-radius: 12px; padding: 14px 16px;
+}
+.stat-label {
+  font-size: 9px; font-weight: 700;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: #9CA3AF; margin-bottom: 6px;
+}
+.stat-value {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; font-weight: 700;
+  color: #1C1917; line-height: 1;
+}
+.stat-unit { font-size: 11px; color: #9CA3AF; margin-top: 4px; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="top-nav">
+  <a href="index.html" class="nav-brand">World Heritage Monitor</a>
+  <div class="nav-links">
+    <a href="index.html" class="nav-link">Dashboard</a>
+    <a href="analytics.html" class="nav-link active">Analytics</a>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow">Queries</div>
+    <h1 class="page-title">Analytics Queries</h1>
+    <p class="page-sub">Results of analytical SQL queries across the heritage monitoring database</p>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- TAB BAR -->
+  <div class="tab-bar-wrap" id="tabBar">
+    <button class="tab-btn active" onclick="switchTab('1',this)"><span class="tab-dot"></span>1 · Site Listing</button>
+    <button class="tab-btn" onclick="switchTab('2',this)"><span class="tab-dot"></span>2 · Endangered</button>
+    <button class="tab-btn" onclick="switchTab('3',this)"><span class="tab-dot"></span>3 · Revenue</button>
+    <button class="tab-btn" onclick="switchTab('4',this)"><span class="tab-dot"></span>4 · Open Threats</button>
+    <button class="tab-btn" onclick="switchTab('5',this)"><span class="tab-dot"></span>5 · Threat Types</button>
+    <button class="tab-btn" onclick="switchTab('6',this)"><span class="tab-dot"></span>6 · Funding/Site</button>
+    <button class="tab-btn" onclick="switchTab('7',this)"><span class="tab-dot"></span>7 · Funding/Source</button>
+    <button class="tab-btn" onclick="switchTab('8',this)"><span class="tab-dot"></span>8 · Critical Status</button>
+    <button class="tab-btn" onclick="switchTab('9',this)"><span class="tab-dot"></span>9 · Top 5 Revenue</button>
+    <button class="tab-btn" onclick="switchTab('10',this)"><span class="tab-dot"></span>10 · Monthly 2023</button>
+    <button class="tab-btn" onclick="switchTab('11',this)"><span class="tab-dot"></span>11 · Multi-Site Visitors</button>
+    <button class="tab-btn" onclick="switchTab('12',this)"><span class="tab-dot"></span>12 · No Threats</button>
+    <button class="tab-btn" onclick="switchTab('13',this)"><span class="tab-dot"></span>13 · Funding Projects</button>
+    <button class="tab-btn" onclick="switchTab('14',this)"><span class="tab-dot"></span>14 · Annual Reports</button>
+    <button class="tab-btn" onclick="switchTab('15',this)"><span class="tab-dot"></span>15 · Zones</button>
+    <button class="tab-btn" onclick="switchTab('16',this)"><span class="tab-dot"></span>16 · Hotspots</button>
+    <button class="tab-btn" onclick="switchTab('17',this)"><span class="tab-dot"></span>17 · Low Feedback</button>
+    <button class="tab-btn" onclick="switchTab('18',this)"><span class="tab-dot"></span>18 · Due Review</button>
+    <button class="tab-btn" onclick="switchTab('19',this)"><span class="tab-dot"></span>19 · Dashboard</button>
+    <button class="tab-btn" onclick="switchTab('20',this)"><span class="tab-dot"></span>20 · Budget Comparison</button>
+  </div>
+
+  <!-- ══ Q1 ══ -->
+  <div class="query-panel active" id="panel-1">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 1</div>
+        <div class="query-title">Full Site Listing</div>
+        <div class="query-desc">All heritage sites with country, category, inscription year, area, and danger status — ordered chronologically.</div>
+      </div>
+      <span class="query-badge badge-sites">Sites</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name, c.region,
+       hc.category_name, hs.inscription_year,
+       hs.area_hectares, <span class="sql-fn">IF</span>(hs.is_endangered,<span class="sql-str">'YES'</span>,<span class="sql-str">'NO'</span>) AS on_danger_list
+<span class="sql-kw">FROM</span> heritagesite hs
+<span class="sql-kw">JOIN</span> country c           <span class="sql-kw">ON</span> hs.country_id  = c.country_id
+<span class="sql-kw">JOIN</span> heritagecategory hc <span class="sql-kw">ON</span> hs.category_id = hc.category_id
+<span class="sql-kw">ORDER BY</span> hs.inscription_year</pre></div>
+    <div id="result-q1"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q2 ══ -->
+  <div class="query-panel" id="panel-2">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 2</div>
+        <div class="query-title">Endangered Sites — Latest Conservation Status</div>
+        <div class="query-desc">Sites on the UNESCO Danger List with their most recent conservation assessment date and notes.</div>
+      </div>
+      <span class="query-badge badge-threats">Endangered</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name, cs.status_label,
+       cs.risk_level, cr.assessment_date, cr.notes
+<span class="sql-kw">FROM</span> heritagesite hs
+<span class="sql-kw">JOIN</span> conservationrecord cr <span class="sql-kw">ON</span> hs.site_id   = cr.site_id
+<span class="sql-kw">JOIN</span> conservationstatus cs <span class="sql-kw">ON</span> cr.status_id = cs.status_id
+<span class="sql-kw">WHERE</span> hs.is_endangered = 1
+  <span class="sql-kw">AND</span> cr.assessment_date = (<span class="sql-kw">SELECT MAX</span>(cr2.assessment_date)
+      <span class="sql-kw">FROM</span> conservationrecord cr2 <span class="sql-kw">WHERE</span> cr2.site_id = hs.site_id)</pre></div>
+    <div id="result-q2"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q3 ══ -->
+  <div class="query-panel" id="panel-3">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 3</div>
+        <div class="query-title">Visitor & Revenue Totals per Site</div>
+        <div class="query-desc">Aggregated visit counts, total visitors, revenue, and average feedback score per site.</div>
+      </div>
+      <span class="query-badge badge-visitors">Visitors</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name,
+       <span class="sql-fn">COUNT</span>(v.visit_id) AS total_visits,
+       <span class="sql-fn">SUM</span>(v.group_size) AS total_visitors,
+       <span class="sql-fn">SUM</span>(v.revenue_usd) AS total_revenue_usd,
+       <span class="sql-fn">ROUND</span>(<span class="sql-fn">AVG</span>(v.feedback_score),2) AS avg_feedback
+<span class="sql-kw">FROM</span> heritagesite hs
+<span class="sql-kw">JOIN</span> country c <span class="sql-kw">ON</span> hs.country_id = c.country_id
+<span class="sql-kw">LEFT JOIN</span> visit v <span class="sql-kw">ON</span> hs.site_id = v.site_id
+<span class="sql-kw">GROUP BY</span> hs.site_id, hs.site_name, c.country_name
+<span class="sql-kw">ORDER BY</span> total_revenue_usd <span class="sql-kw">DESC</span></pre></div>
+    <div id="result-q3"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q4 ══ -->
+  <div class="query-panel" id="panel-4">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 4</div>
+        <div class="query-title">Open High & Critical Threats</div>
+        <div class="query-desc">All unresolved threat incidents with severity rated High or Critical, ordered by severity then date.</div>
+      </div>
+      <span class="query-badge badge-threats">Threats</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> ti.incident_id, hs.site_name, c.country_name,
+       tc.category_name AS threat_type, ti.severity,
+       ti.incident_date, ti.description
+<span class="sql-kw">FROM</span> threatincident ti
+<span class="sql-kw">JOIN</span> heritagesite hs   <span class="sql-kw">ON</span> ti.site_id       = hs.site_id
+<span class="sql-kw">JOIN</span> country c         <span class="sql-kw">ON</span> hs.country_id    = c.country_id
+<span class="sql-kw">JOIN</span> threatcategory tc <span class="sql-kw">ON</span> ti.threat_cat_id = tc.threat_cat_id
+<span class="sql-kw">WHERE</span> ti.resolved = 0
+  <span class="sql-kw">AND</span> ti.severity <span class="sql-kw">IN</span> (<span class="sql-str">'High'</span>,<span class="sql-str">'Critical'</span>)
+<span class="sql-kw">ORDER BY</span> ti.severity <span class="sql-kw">DESC</span>, ti.incident_date</pre></div>
+    <div id="result-q4"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q5 ══ -->
+  <div class="query-panel" id="panel-5">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 5</div>
+        <div class="query-title">Threat Incidents by Type — Resolution Rate</div>
+        <div class="query-desc">Count of total, resolved, and open incidents per threat category with resolution percentage.</div>
+      </div>
+      <span class="query-badge badge-threats">Threats</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> tc.category_name,
+       <span class="sql-fn">COUNT</span>(*) AS total_incidents,
+       <span class="sql-fn">SUM</span>(ti.resolved) AS resolved_count,
+       <span class="sql-fn">COUNT</span>(*) - <span class="sql-fn">SUM</span>(ti.resolved) AS open_count,
+       <span class="sql-fn">ROUND</span>(<span class="sql-fn">SUM</span>(ti.resolved)/<span class="sql-fn">COUNT</span>(*)*100,1) AS resolution_rate_pct
+<span class="sql-kw">FROM</span> threatincident ti
+<span class="sql-kw">JOIN</span> threatcategory tc <span class="sql-kw">ON</span> ti.threat_cat_id = tc.threat_cat_id
+<span class="sql-kw">GROUP BY</span> tc.category_name
+<span class="sql-kw">ORDER BY</span> total_incidents <span class="sql-kw">DESC</span></pre></div>
+    <div id="result-q5"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q6 ══ -->
+  <div class="query-panel" id="panel-6">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 6</div>
+        <div class="query-title">Total Funding per Site</div>
+        <div class="query-desc">Aggregated funding allocations per heritage site, showing number of tranches and total USD funded.</div>
+      </div>
+      <span class="query-badge badge-funding">Funding</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name,
+       <span class="sql-fn">COUNT</span>(fa.allocation_id) AS funding_tranches,
+       <span class="sql-fn">SUM</span>(fa.amount_usd) AS total_funded_usd
+<span class="sql-kw">FROM</span> fundingallocation fa
+<span class="sql-kw">JOIN</span> heritagesite hs <span class="sql-kw">ON</span> fa.site_id    = hs.site_id
+<span class="sql-kw">JOIN</span> country c       <span class="sql-kw">ON</span> hs.country_id = c.country_id
+<span class="sql-kw">GROUP BY</span> hs.site_id, hs.site_name, c.country_name
+<span class="sql-kw">ORDER BY</span> total_funded_usd <span class="sql-kw">DESC</span></pre></div>
+    <div id="result-q6"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q7 ══ -->
+  <div class="query-panel" id="panel-7">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 7</div>
+        <div class="query-title">Funding by Source Type & Fiscal Year</div>
+        <div class="query-desc">Breakdown of allocations grouped by funding source type and fiscal year with totals.</div>
+      </div>
+      <span class="query-badge badge-funding">Funding</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> fs.source_type, fa.fiscal_year,
+       <span class="sql-fn">COUNT</span>(fa.allocation_id) AS allocations,
+       <span class="sql-fn">SUM</span>(fa.amount_usd) AS total_amount_usd
+<span class="sql-kw">FROM</span> fundingallocation fa
+<span class="sql-kw">JOIN</span> fundingsource fs <span class="sql-kw">ON</span> fa.fund_id = fs.fund_id
+<span class="sql-kw">GROUP BY</span> fs.source_type, fa.fiscal_year
+<span class="sql-kw">ORDER BY</span> fa.fiscal_year, total_amount_usd <span class="sql-kw">DESC</span></pre></div>
+    <div id="result-q7"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q8 ══ -->
+  <div class="query-panel" id="panel-8">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 8</div>
+        <div class="query-title">Sites with Critical or Fair Conservation Status</div>
+        <div class="query-desc">Subquery to find sites whose latest conservation record is rated Critical or Fair.</div>
+      </div>
+      <span class="query-badge badge-threats">Conservation</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name,
+       cs.status_label, cr.assessment_date
+<span class="sql-kw">FROM</span> heritagesite hs
+<span class="sql-kw">JOIN</span> conservationrecord cr <span class="sql-kw">ON</span> hs.site_id   = cr.site_id
+<span class="sql-kw">JOIN</span> conservationstatus cs <span class="sql-kw">ON</span> cr.status_id = cs.status_id
+<span class="sql-kw">WHERE</span> cr.assessment_date = (
+    <span class="sql-kw">SELECT MAX</span>(cr2.assessment_date) <span class="sql-kw">FROM</span> conservationrecord cr2
+    <span class="sql-kw">WHERE</span> cr2.site_id = hs.site_id)
+  <span class="sql-kw">AND</span> cs.status_label <span class="sql-kw">IN</span> (<span class="sql-str">'Critical'</span>,<span class="sql-str">'Fair'</span>)</pre></div>
+    <div id="result-q8"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q9 ══ -->
+  <div class="query-panel" id="panel-9">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 9</div>
+        <div class="query-title">Top 5 Sites by Visitor Revenue</div>
+        <div class="query-desc">The five heritage sites that have generated the highest total visitor revenue.</div>
+      </div>
+      <span class="query-badge badge-visitors">Revenue</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name,
+       <span class="sql-fn">SUM</span>(v.revenue_usd) AS total_revenue
+<span class="sql-kw">FROM</span> visit v
+<span class="sql-kw">JOIN</span> heritagesite hs <span class="sql-kw">ON</span> v.site_id = hs.site_id
+<span class="sql-kw">GROUP BY</span> hs.site_id, hs.site_name
+<span class="sql-kw">ORDER BY</span> total_revenue <span class="sql-kw">DESC</span>
+<span class="sql-kw">LIMIT</span> 5</pre></div>
+    <div id="result-q9"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q10 ══ -->
+  <div class="query-panel" id="panel-10">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 10</div>
+        <div class="query-title">Monthly Visit Trend — 2023</div>
+        <div class="query-desc">Month-by-month breakdown of visit counts, total visitors, and revenue for calendar year 2023.</div>
+      </div>
+      <span class="query-badge badge-visitors">Trend</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> <span class="sql-fn">YEAR</span>(visit_date) AS yr, <span class="sql-fn">MONTH</span>(visit_date) AS mth,
+       <span class="sql-fn">MONTHNAME</span>(visit_date) AS month_name,
+       <span class="sql-fn">COUNT</span>(visit_id) AS visit_count,
+       <span class="sql-fn">SUM</span>(group_size) AS visitors,
+       <span class="sql-fn">SUM</span>(revenue_usd) AS revenue_usd
+<span class="sql-kw">FROM</span> visit
+<span class="sql-kw">WHERE</span> <span class="sql-fn">YEAR</span>(visit_date) = 2023
+<span class="sql-kw">GROUP BY</span> yr, mth, month_name
+<span class="sql-kw">ORDER BY</span> mth</pre></div>
+    <div id="result-q10"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q11 ══ -->
+  <div class="query-panel" id="panel-11">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 11</div>
+        <div class="query-title">Visitors Who Visited Multiple Sites</div>
+        <div class="query-desc">Visitors with visits to more than one distinct heritage site, showing total spend and site count.</div>
+      </div>
+      <span class="query-badge badge-visitors">Visitors</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> v.full_name, v.nationality,
+       <span class="sql-fn">COUNT</span>(<span class="sql-kw">DISTINCT</span> vi.site_id) AS sites_visited,
+       <span class="sql-fn">COUNT</span>(vi.visit_id) AS total_visits,
+       <span class="sql-fn">SUM</span>(vi.revenue_usd) AS total_spent_usd
+<span class="sql-kw">FROM</span> visitor v
+<span class="sql-kw">JOIN</span> visit vi <span class="sql-kw">ON</span> v.visitor_id = vi.visitor_id
+<span class="sql-kw">WHERE</span> v.visitor_id <span class="sql-kw">IN</span> (
+    <span class="sql-kw">SELECT</span> visitor_id <span class="sql-kw">FROM</span> visit
+    <span class="sql-kw">GROUP BY</span> visitor_id <span class="sql-kw">HAVING COUNT</span>(<span class="sql-kw">DISTINCT</span> site_id) > 1
+)
+<span class="sql-kw">GROUP BY</span> v.visitor_id, v.full_name, v.nationality
+<span class="sql-kw">ORDER BY</span> sites_visited <span class="sql-kw">DESC</span></pre></div>
+    <div id="result-q11"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q12 ══ -->
+  <div class="query-panel" id="panel-12">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 12</div>
+        <div class="query-title">Sites with No Recorded Threats</div>
+        <div class="query-desc">Heritage sites that have zero threat incidents on record — using a NOT IN subquery.</div>
+      </div>
+      <span class="query-badge badge-sites">Safe Sites</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name,
+       hc.category_name, hs.inscription_year
+<span class="sql-kw">FROM</span> heritagesite hs
+<span class="sql-kw">JOIN</span> country c           <span class="sql-kw">ON</span> hs.country_id  = c.country_id
+<span class="sql-kw">JOIN</span> heritagecategory hc <span class="sql-kw">ON</span> hs.category_id = hc.category_id
+<span class="sql-kw">WHERE</span> hs.site_id <span class="sql-kw">NOT IN</span> (
+    <span class="sql-kw">SELECT DISTINCT</span> site_id <span class="sql-kw">FROM</span> threatincident
+)
+<span class="sql-kw">ORDER BY</span> hs.site_name</pre></div>
+    <div id="result-q12"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q13 ══ -->
+  <div class="query-panel" id="panel-13">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 13</div>
+        <div class="query-title">Complete Funding Picture per Project</div>
+        <div class="query-desc">Multi-join across funding allocations, conservation projects, sites, and funding sources.</div>
+      </div>
+      <span class="query-badge badge-funding">Projects</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> cp.project_name, hs.site_name,
+       fs.source_name, fs.source_type,
+       fa.amount_usd, fa.fiscal_year
+<span class="sql-kw">FROM</span> fundingallocation fa
+<span class="sql-kw">JOIN</span> conservationproject cp <span class="sql-kw">ON</span> fa.project_id = cp.project_id
+<span class="sql-kw">JOIN</span> heritagesite hs        <span class="sql-kw">ON</span> fa.site_id    = hs.site_id
+<span class="sql-kw">JOIN</span> fundingsource fs       <span class="sql-kw">ON</span> fa.fund_id    = fs.fund_id
+<span class="sql-kw">ORDER BY</span> cp.project_name, fa.fiscal_year</pre></div>
+    <div id="result-q13"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q14 ══ -->
+  <div class="query-panel" id="panel-14">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 14</div>
+        <div class="query-title">Annual Report Summary</div>
+        <div class="query-desc">Visitor count and revenue trend per site per year, with conservation spend as a percentage of revenue.</div>
+      </div>
+      <span class="query-badge badge-report">Reports</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, ar.report_year,
+       ar.visitor_count, ar.total_revenue, ar.conservation_spend,
+       <span class="sql-fn">ROUND</span>(ar.conservation_spend / ar.total_revenue * 100, 1)
+           AS conservation_as_pct_revenue,
+       ar.summary
+<span class="sql-kw">FROM</span> annualreport ar
+<span class="sql-kw">JOIN</span> heritagesite hs <span class="sql-kw">ON</span> ar.site_id = hs.site_id
+<span class="sql-kw">ORDER BY</span> hs.site_name, ar.report_year</pre></div>
+    <div id="result-q14"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q15 ══ -->
+  <div class="query-panel" id="panel-15">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 15</div>
+        <div class="query-title">Zone Inventory per Site</div>
+        <div class="query-desc">Core, buffer, and transition zones for each site with area in hectares and percentage of total site area.</div>
+      </div>
+      <span class="query-badge badge-zones">Zones</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, sz.zone_name,
+       sz.zone_type, sz.area_hectares,
+       <span class="sql-fn">ROUND</span>(sz.area_hectares / hs.area_hectares * 100, 2) AS pct_of_total_area
+<span class="sql-kw">FROM</span> sitezone sz
+<span class="sql-kw">JOIN</span> heritagesite hs <span class="sql-kw">ON</span> sz.site_id = hs.site_id
+<span class="sql-kw">ORDER BY</span> hs.site_name, sz.zone_type</pre></div>
+    <div id="result-q15"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q16 ══ -->
+  <div class="query-panel" id="panel-16">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 16</div>
+        <div class="query-title">Threat Hotspots — Sites with 3+ Incidents</div>
+        <div class="query-desc">Sites with three or more recorded threat incidents, showing open vs resolved counts and threat type mix.</div>
+      </div>
+      <span class="query-badge badge-threats">Hotspots</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name,
+       <span class="sql-fn">COUNT</span>(ti.incident_id) AS total_incidents,
+       <span class="sql-fn">SUM</span>(ti.resolved) AS resolved,
+       <span class="sql-fn">COUNT</span>(ti.incident_id)-<span class="sql-fn">SUM</span>(ti.resolved) AS open_incidents,
+       <span class="sql-fn">GROUP_CONCAT</span>(<span class="sql-kw">DISTINCT</span> tc.category_name ...) AS threat_types
+<span class="sql-kw">FROM</span> threatincident ti ...
+<span class="sql-kw">HAVING</span> total_incidents >= 3
+<span class="sql-kw">ORDER BY</span> total_incidents <span class="sql-kw">DESC</span></pre></div>
+    <div id="result-q16"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q17 ══ -->
+  <div class="query-panel" id="panel-17">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 17</div>
+        <div class="query-title">Sites with Low Visitor Feedback (&lt; 4.0)</div>
+        <div class="query-desc">Sites where the average visitor feedback score falls below 4.0, ordered by worst score first.</div>
+      </div>
+      <span class="query-badge badge-visitors">Feedback</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name,
+       <span class="sql-fn">ROUND</span>(<span class="sql-fn">AVG</span>(v.feedback_score),2) AS avg_feedback,
+       <span class="sql-fn">COUNT</span>(v.visit_id) AS total_reviews
+<span class="sql-kw">FROM</span> visit v
+<span class="sql-kw">JOIN</span> heritagesite hs <span class="sql-kw">ON</span> v.site_id     = hs.site_id
+<span class="sql-kw">JOIN</span> country c       <span class="sql-kw">ON</span> hs.country_id = c.country_id
+<span class="sql-kw">WHERE</span> v.feedback_score <span class="sql-kw">IS NOT NULL</span>
+<span class="sql-kw">GROUP BY</span> hs.site_id, hs.site_name, c.country_name
+<span class="sql-kw">HAVING</span> avg_feedback &lt; 4.0
+<span class="sql-kw">ORDER BY</span> avg_feedback <span class="sql-kw">ASC</span></pre></div>
+    <div id="result-q17"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q18 ══ -->
+  <div class="query-panel" id="panel-18">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 18</div>
+        <div class="query-title">Sites Due for Conservation Review (Next 6 Months)</div>
+        <div class="query-desc">Sites whose next scheduled conservation review falls within 6 months of today, with days remaining.</div>
+      </div>
+      <span class="query-badge badge-threats">Upcoming</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, cr.assessment_date AS last_assessed,
+       cr.next_review, cs.status_label,
+       <span class="sql-fn">DATEDIFF</span>(cr.next_review, <span class="sql-fn">CURDATE</span>()) AS days_until_review
+<span class="sql-kw">FROM</span> conservationrecord cr
+<span class="sql-kw">JOIN</span> heritagesite hs     <span class="sql-kw">ON</span> cr.site_id   = hs.site_id
+<span class="sql-kw">JOIN</span> conservationstatus cs <span class="sql-kw">ON</span> cr.status_id = cs.status_id
+<span class="sql-kw">WHERE</span> cr.next_review <span class="sql-kw">BETWEEN</span> <span class="sql-fn">CURDATE</span>() <span class="sql-kw">AND</span> <span class="sql-fn">DATE_ADD</span>(<span class="sql-fn">CURDATE</span>(), <span class="sql-kw">INTERVAL</span> 6 <span class="sql-kw">MONTH</span>)</pre></div>
+    <div id="result-q18"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q19 ══ -->
+  <div class="query-panel" id="panel-19">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 19</div>
+        <div class="query-title">Executive Dashboard — One Row per Site</div>
+        <div class="query-desc">Full site summary aggregating conservation status, funding, visitors, open threats, and active projects in a single view.</div>
+      </div>
+      <span class="query-badge badge-dashboard">Dashboard</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span> hs.site_name, c.country_name, hc.category_name,
+       hs.inscription_year,
+       <span class="sql-fn">IF</span>(hs.is_endangered,<span class="sql-str">'Endangered'</span>,<span class="sql-str">'Safe'</span>) AS danger_status,
+       cs_latest.status_label AS conservation_status,
+       <span class="sql-fn">COALESCE</span>(<span class="sql-fn">SUM</span>(<span class="sql-kw">DISTINCT</span> fa.amount_usd),0) AS total_funding_usd,
+       <span class="sql-fn">COALESCE</span>(visit_agg.total_visitors,0) AS total_visitors,
+       <span class="sql-fn">COALESCE</span>(threat_agg.open_threats,0) AS open_threats,
+       <span class="sql-fn">COALESCE</span>(project_agg.active_projects,0) AS active_projects
+<span class="sql-kw">FROM</span> heritagesite hs ... (multi-join)
+<span class="sql-kw">ORDER BY</span> open_threats <span class="sql-kw">DESC</span>, hs.site_name</pre></div>
+    <div id="result-q19"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+  <!-- ══ Q20 ══ -->
+  <div class="query-panel" id="panel-20">
+    <div class="query-header">
+      <div class="query-meta">
+        <div class="query-number">Query 20</div>
+        <div class="query-title">Project Budgets vs. Actual Funding Allocations</div>
+        <div class="query-desc">Planned budgets for conservation projects compared against actual funding allocations, highlighting outstanding funding gaps and coverage percentages.</div>
+      </div>
+      <span class="query-badge badge-funding">Funding</span>
+    </div>
+    <div class="sql-block"><pre><span class="sql-kw">SELECT</span>
+    cp.project_id, cp.project_name, hs.site_name,
+    cp.status <span class="sql-kw">AS</span> project_status,
+    cp.budget_usd <span class="sql-kw">AS</span> planned_budget_usd,
+    <span class="sql-fn">COALESCE</span>(<span class="sql-fn">SUM</span>(fa.amount_usd), 0) <span class="sql-kw">AS</span> total_allocated_usd,
+    cp.budget_usd - <span class="sql-fn">COALESCE</span>(<span class="sql-fn">SUM</span>(fa.amount_usd), 0) <span class="sql-kw">AS</span> funding_gap_usd,
+    <span class="sql-kw">CASE</span> 
+        <span class="sql-kw">WHEN</span> cp.budget_usd > 0 <span class="sql-kw">THEN</span> <span class="sql-fn">ROUND</span>((<span class="sql-fn">COALESCE</span>(<span class="sql-fn">SUM</span>(fa.amount_usd), 0) / cp.budget_usd) * 100, 1)
+        <span class="sql-kw">ELSE</span> 0.0
+    <span class="sql-kw">END AS</span> coverage_pct
+<span class="sql-kw">FROM</span> conservationproject cp
+<span class="sql-kw">JOIN</span> heritagesite hs <span class="sql-kw">ON</span> cp.site_id = hs.site_id
+<span class="sql-kw">LEFT JOIN</span> fundingallocation fa <span class="sql-kw">ON</span> cp.project_id = fa.project_id
+<span class="sql-kw">GROUP BY</span> cp.project_id, cp.project_name, hs.site_name, cp.status, cp.budget_usd
+<span class="sql-kw">ORDER BY</span> funding_gap_usd <span class="sql-kw">DESC</span></pre></div>
+    <div id="result-q20"><div class="state-box"><span class="spinner"></span>Loading…</div></div>
+  </div>
+
+</div><!-- /app -->
+
+<script>
+const API = 'http://localhost:3000/api';
+const loaded = {};
+
+/* ── Switch tab ── */
+function switchTab(id, btn) {
+  const qid = 'q' + id;   // '1' → 'q1', '14' → 'q14'
+  document.querySelectorAll('.query-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
+  if (!loaded[qid]) { loadQuery(qid); loaded[qid] = true; }
+}
+
+/* ── Format helpers ── */
+const fmtNum  = n => n == null ? '—' : Number(n).toLocaleString();
+const fmtUSD  = n => n == null ? '—' : '$' + Number(n).toLocaleString();
+const fmtDate = d => d ? String(d).slice(0,10) : '—';
+const fmtPct  = n => n == null ? '—' : n + '%';
+
+function severityPill(s) {
+  const cls = { High:'pill-high', Critical:'pill-critical', Medium:'pill-medium', Low:'pill-low' };
+  return `<span class="cell-pill ${cls[s]||''}">${s}</span>`;
+}
+function dangerPill(v) {
+  return v === 'YES' || v === 'Endangered'
+    ? `<span class="cell-pill pill-endangered">${v}</span>`
+    : `<span class="cell-pill pill-safe">${v}</span>`;
+}
+function catPill(c) {
+  const cls = { Cultural:'pill-cultural', Natural:'pill-natural', Mixed:'pill-mixed' };
+  return `<span class="cell-pill ${cls[c]||'pill-cultural'}">${c||'—'}</span>`;
+}
+function statusPill(s) {
+  const cls = { Critical:'pill-critical', Fair:'pill-medium', Good:'pill-safe', Excellent:'pill-safe' };
+  return `<span class="cell-pill ${cls[s]||''}">${s||'—'}</span>`;
+}
+
+/* ── Generic table builder ── */
+function buildTable(rows, colDefs, resultId, summaryCards) {
+  if (!rows.length) {
+    document.getElementById(resultId).innerHTML =
+      '<div class="state-box">No results returned.</div>';
+    return;
+  }
+
+  let html = '';
+  if (summaryCards) html += summaryCards(rows);
+
+  html += `<div class="table-wrap">
+    <div class="table-toolbar">
+      <span class="table-count">${rows.length} row${rows.length===1?'':'s'}</span>
+      <input class="table-search" placeholder="Filter rows…"
+             oninput="filterTable(this,'tbl-${resultId}')">
+    </div>
+    <div style="overflow-x:auto">
+    <table class="data-table" id="tbl-${resultId}">
+      <thead><tr>${colDefs.map(c=>`<th>${c.label}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${rows.map(r=>`<tr>${colDefs.map(c=>`<td>${c.render(r)}</td>`).join('')}</tr>`).join('')}
+      </tbody>
+    </table></div></div>`;
+
+  document.getElementById(resultId).innerHTML = html;
+}
+
+/* ── Row filter ── */
+function filterTable(input, tableId) {
+  const q = input.value.toLowerCase();
+  document.querySelectorAll(`#${tableId} tbody tr`).forEach(tr => {
+    tr.style.display = tr.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+}
+
+/* ── Load each query ── */
+async function loadQuery(id) {
+  const el = document.getElementById('result-' + id);
+  if (!el) {
+    console.error(`loadQuery: no element found with id "result-${id}" — check panel/result id mismatch.`);
+    return;
+  }
+  el.innerHTML = '<div class="state-box"><span class="spinner"></span>Loading…</div>';
+  try {
+    const res = await fetch(`${API}/analytics/${id}`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const rows = await res.json();
+    renderQuery(id, rows);
+  } catch(e) {
+    el.innerHTML = `<div class="state-box err">⚠ ${e.message}</div>`;
+  }
+}
+
+function renderQuery(id, rows) {
+  const rid = 'result-' + id;
+  switch(id) {
+
+    case 'q1': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Region',          render: r => r.region },
+      { label:'Category',        render: r => catPill(r.category_name) },
+      { label:'Inscribed',       render: r => `<span class="num-cell">${r.inscription_year}</span>` },
+      { label:'Area (ha)',       render: r => `<span class="num-cell">${fmtNum(r.area_hectares)}</span>` },
+      { label:'Danger List',     render: r => dangerPill(r.on_danger_list) },
+    ], rid);
+
+    case 'q2': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Status',          render: r => statusPill(r.status_label) },
+      { label:'Risk Level',      render: r => `<span class="num-cell red-num">${r.risk_level}</span>` },
+      { label:'Assessment Date', render: r => fmtDate(r.assessment_date) },
+      { label:'Notes',           render: r => `<span style="font-size:11px;color:#6B7280">${r.notes||'—'}</span>` },
+    ], rid);
+
+    case 'q3': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Total Visits',    render: r => `<span class="num-cell">${fmtNum(r.total_visits)}</span>` },
+      { label:'Total Visitors',  render: r => `<span class="num-cell">${fmtNum(r.total_visitors)}</span>` },
+      { label:'Total Revenue',   render: r => `<span class="num-cell green-num">${fmtUSD(r.total_revenue_usd)}</span>` },
+      { label:'Avg Feedback',    render: r => r.avg_feedback != null
+          ? `<span class="num-cell" style="color:${r.avg_feedback>=4?'#2D6A4F':'#DC2626'}">${r.avg_feedback}</span>` : '—' },
+    ], rid);
+
+    case 'q4': return buildTable(rows, [
+      { label:'#',               render: r => `<span style="color:#9CA3AF;font-size:11px">${r.incident_id}</span>` },
+      { label:'Site',            render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Threat Type',     render: r => r.threat_type },
+      { label:'Severity',        render: r => severityPill(r.severity) },
+      { label:'Date',            render: r => fmtDate(r.incident_date) },
+      { label:'Description',     render: r => `<span style="font-size:11px;color:#6B7280;max-width:280px;display:block">${r.description}</span>` },
+    ], rid);
+
+    case 'q5': return buildTable(rows, [
+      { label:'Threat Category',    render: r => r.category_name },
+      { label:'Total Incidents',    render: r => `<span class="num-cell">${r.total_incidents}</span>` },
+      { label:'Resolved',           render: r => `<span class="num-cell green-num">${r.resolved_count}</span>` },
+      { label:'Open',               render: r => `<span class="num-cell red-num">${r.open_count}</span>` },
+      { label:'Resolution Rate',    render: r => {
+          const p = parseFloat(r.resolution_rate_pct);
+          const color = p>=70?'#2D6A4F':p>=40?'#92400E':'#DC2626';
+          return `<span class="num-cell" style="color:${color}">${r.resolution_rate_pct}%</span>`;
+        }
+      },
+    ], rid);
+
+    case 'q6': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Tranches',        render: r => `<span class="num-cell">${r.funding_tranches}</span>` },
+      { label:'Total Funded',    render: r => `<span class="num-cell green-num">${fmtUSD(r.total_funded_usd)}</span>` },
+    ], rid);
+
+    case 'q7': return buildTable(rows, [
+      { label:'Source Type',     render: r => r.source_type },
+      { label:'Fiscal Year',     render: r => `<span class="num-cell">${r.fiscal_year}</span>` },
+      { label:'Allocations',     render: r => `<span class="num-cell">${r.allocations}</span>` },
+      { label:'Total Amount',    render: r => `<span class="num-cell green-num">${fmtUSD(r.total_amount_usd)}</span>` },
+    ], rid);
+
+    case 'q8': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Status',          render: r => statusPill(r.status_label) },
+      { label:'Assessment Date', render: r => fmtDate(r.assessment_date) },
+    ], rid);
+
+    case 'q9': return buildTable(rows, [
+      { label:'Rank',            render: (r,i) => `<span class="num-cell" style="color:#9CA3AF">${i+1}</span>` },
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Total Revenue',   render: r => `<span class="num-cell green-num">${fmtUSD(r.total_revenue)}</span>` },
+    ], rid);
+
+    case 'q10': return buildTable(rows, [
+      { label:'Month',           render: r => r.month_name },
+      { label:'Visit Count',     render: r => `<span class="num-cell">${fmtNum(r.visit_count)}</span>` },
+      { label:'Total Visitors',  render: r => `<span class="num-cell">${fmtNum(r.visitors)}</span>` },
+      { label:'Revenue',         render: r => `<span class="num-cell green-num">${fmtUSD(r.revenue_usd)}</span>` },
+    ], rid);
+
+    case 'q11': return buildTable(rows, [
+      { label:'Visitor Name',    render: r => r.full_name },
+      { label:'Nationality',     render: r => r.nationality },
+      { label:'Sites Visited',   render: r => `<span class="num-cell">${r.sites_visited}</span>` },
+      { label:'Total Visits',    render: r => `<span class="num-cell">${r.total_visits}</span>` },
+      { label:'Total Spent',     render: r => `<span class="num-cell green-num">${fmtUSD(r.total_spent_usd)}</span>` },
+    ], rid);
+
+    case 'q12': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Category',        render: r => catPill(r.category_name) },
+      { label:'Inscribed',       render: r => `<span class="num-cell">${r.inscription_year}</span>` },
+    ], rid);
+
+    case 'q13': return buildTable(rows, [
+      { label:'Project',         render: r => r.project_name },
+      { label:'Site',            render: r => r.site_name },
+      { label:'Source',          render: r => r.source_name },
+      { label:'Source Type',     render: r => r.source_type },
+      { label:'Amount',          render: r => `<span class="num-cell green-num">${fmtUSD(r.amount_usd)}</span>` },
+      { label:'Fiscal Year',     render: r => `<span class="num-cell">${r.fiscal_year}</span>` },
+    ], rid);
+
+    case 'q14': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Year',            render: r => `<span class="num-cell">${r.report_year}</span>` },
+      { label:'Visitors',        render: r => `<span class="num-cell">${fmtNum(r.visitor_count)}</span>` },
+      { label:'Revenue',         render: r => `<span class="num-cell green-num">${fmtUSD(r.total_revenue)}</span>` },
+      { label:'Conserv. Spend',  render: r => `<span class="num-cell">${fmtUSD(r.conservation_spend)}</span>` },
+      { label:'Conserv. %',      render: r => {
+          const p = parseFloat(r.conservation_as_pct_revenue);
+          return `<span class="num-cell" style="color:${p>20?'#DC2626':'#2D6A4F'}">${r.conservation_as_pct_revenue}%</span>`;
+        }
+      },
+      { label:'Summary',         render: r => `<span style="font-size:11px;color:#6B7280">${r.summary||'—'}</span>` },
+    ], rid);
+
+    case 'q15': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Zone Name',       render: r => r.zone_name },
+      { label:'Zone Type',       render: r => {
+          const cls = { Core:'zt-core', Buffer:'zt-buffer', Transition:'zt-transition' };
+          return `<span class="cell-pill ${cls[r.zone_type]||''}">${r.zone_type}</span>`;
+        }
+      },
+      { label:'Area (ha)',       render: r => `<span class="num-cell">${fmtNum(r.area_hectares)}</span>` },
+      { label:'% of Site',       render: r => `<span class="num-cell">${r.pct_of_total_area}%</span>` },
+    ], rid);
+
+    case 'q16': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Total Incidents', render: r => `<span class="num-cell red-num">${r.total_incidents}</span>` },
+      { label:'Resolved',        render: r => `<span class="num-cell green-num">${r.resolved}</span>` },
+      { label:'Open',            render: r => `<span class="num-cell red-num">${r.open_incidents}</span>` },
+      { label:'Threat Types',    render: r => `<span style="font-size:11px;color:#6B7280">${r.threat_types}</span>` },
+    ], rid);
+
+    case 'q17': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Country',         render: r => r.country_name },
+      { label:'Avg Feedback',    render: r => `<span class="num-cell red-num">${r.avg_feedback}</span>` },
+      { label:'Total Reviews',   render: r => `<span class="num-cell">${fmtNum(r.total_reviews)}</span>` },
+    ], rid);
+
+    case 'q18': return buildTable(rows, [
+      { label:'Site Name',       render: r => r.site_name },
+      { label:'Last Assessed',   render: r => fmtDate(r.last_assessed) },
+      { label:'Next Review',     render: r => fmtDate(r.next_review) },
+      { label:'Status',          render: r => statusPill(r.status_label) },
+      { label:'Days Remaining',  render: r => {
+          const d = parseInt(r.days_until_review);
+          const color = d<=30?'#DC2626':d<=90?'#92400E':'#2D6A4F';
+          return `<span class="num-cell" style="color:${color}">${d}d</span>`;
+        }
+      },
+    ], rid);
+
+    case 'q19': return buildTable(rows, [
+      { label:'Site Name',         render: r => r.site_name },
+      { label:'Country',           render: r => r.country_name },
+      { label:'Category',          render: r => catPill(r.category_name) },
+      { label:'Inscribed',         render: r => `<span class="num-cell">${r.inscription_year}</span>` },
+      { label:'Danger',            render: r => dangerPill(r.danger_status) },
+      { label:'Conservation',      render: r => statusPill(r.conservation_status) },
+      { label:'Total Funding',     render: r => `<span class="num-cell green-num">${fmtUSD(r.total_funding_usd)}</span>` },
+      { label:'Visitors',          render: r => `<span class="num-cell">${fmtNum(r.total_visitors)}</span>` },
+      { label:'Open Threats',      render: r => `<span class="num-cell ${r.open_threats>0?'red-num':''}">${r.open_threats}</span>` },
+      { label:'Active Projects',   render: r => `<span class="num-cell">${r.active_projects}</span>` },
+    ], rid);
+
+    case 'q20': return buildTable(rows, [
+      { label:'#',              render: r => `<span style="color:#9CA3AF;font-size:11px">${r.project_id}</span>` },
+      { label:'Project Name',   render: r => r.project_name },
+      { label:'Site Name',      render: r => r.site_name },
+      { label:'Status',         render: r => {
+          const color = r.project_status === 'Completed' ? '#2D6A4F' : r.project_status === 'Ongoing' ? '#92400E' : '#6B7280';
+          return `<span style="font-weight:500;color:${color}">${r.project_status}</span>`;
+        }
+      },
+      { label:'Budget',         render: r => `<span class="num-cell">${fmtUSD(r.planned_budget_usd)}</span>` },
+      { label:'Allocated',      render: r => `<span class="num-cell green-num">${fmtUSD(r.total_allocated_usd)}</span>` },
+      { label:'Funding Gap',    render: r => {
+          const isGap = parseFloat(r.funding_gap_usd) > 0;
+          return `<span class="num-cell ${isGap ? 'red-num' : ''}">${fmtUSD(r.funding_gap_usd)}</span>`;
+        }
+      },
+      { label:'Coverage',       render: r => {
+          const p = parseFloat(r.coverage_pct);
+          const color = p >= 100 ? '#2D6A4F' : p >= 60 ? '#92400E' : '#DC2626';
+          return `<span class="num-cell" style="color:${color};font-weight:600">${r.coverage_pct}%</span>`;
+        }
+      },
+    ], rid);
+
+    default:
+      document.getElementById(rid).innerHTML = '<div class="state-box">Unknown query.</div>';
+  }
+}
+
+// Q12 render needs index — patch it
+const _buildTable = buildTable;
+function buildTable(rows, colDefs, resultId, summaryCards) {
+  if (!rows.length) {
+    document.getElementById(resultId).innerHTML = '<div class="state-box">No results returned.</div>';
+    return;
+  }
+  let html = '';
+  if (summaryCards) html += summaryCards(rows);
+  html += `<div class="table-wrap">
+    <div class="table-toolbar">
+      <span class="table-count">${rows.length} row${rows.length===1?'':'s'}</span>
+      <input class="table-search" placeholder="Filter rows…"
+             oninput="filterTable(this,'tbl-${resultId}')">
+    </div>
+    <div style="overflow-x:auto">
+    <table class="data-table" id="tbl-${resultId}">
+      <thead><tr>${colDefs.map(c=>`<th>${c.label}</th>`).join('')}</tr></thead>
+      <tbody>
+        ${rows.map((r,i)=>`<tr>${colDefs.map(c=>`<td>${c.render(r,i)}</td>`).join('')}</tr>`).join('')}
+      </tbody>
+    </table></div></div>`;
+  document.getElementById(resultId).innerHTML = html;
+}
+
+// Load Q1 on page load
+loadQuery('q1');
+loaded['q1'] = true;
+</script>
+</body>
+</html>

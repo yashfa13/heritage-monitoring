@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>World Heritage Monitor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+</head>
+<body>
+
+<!-- ── TOP NAV (mirrors analytics.html) ────────────────────── -->
+<style>
+  .top-nav {
+    background: #0C1223;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    height: 52px;
+    position: sticky; top: 0; z-index: 200;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .nav-brand {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px; font-weight: 700;
+    color: #A8C5A0; white-space: nowrap;
+    text-decoration: none;
+  }
+  .nav-links { display: flex; gap: 0; }
+  .nav-link {
+    font-size: 12px; font-weight: 500;
+    color: rgba(255,255,255,0.5);
+    text-decoration: none;
+    padding: 0 14px; height: 52px;
+    display: flex; align-items: center;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .nav-link:hover { color: rgba(255,255,255,0.85); }
+  .nav-link.active { color: #A8C5A0; border-bottom-color: #A8C5A0; }
+
+  /* ── Site card image fallback ── */
+  /* When app.js sets a background-image that fails to load,
+     show a tasteful gradient so the card is never blank.      */
+  .site-card {
+    background-color: #1C3528 !important;          /* deep green fallback */
+    background-image: linear-gradient(
+      135deg, #1C3528 0%, #0C1223 100%) !important;
+    background-blend-mode: overlay;                /* blends over the real image */
+  }
+  /* If app.js successfully injects an inline background-image,
+     the blend-mode makes it visible; if the image 404s the
+     gradient shows instead — no blank cards ever.             */
+</style>
+<nav class="top-nav">
+  <a href="index.html" class="nav-brand">World Heritage Monitor</a>
+  <div class="nav-links">
+    <a href="index.html"     class="nav-link active">Dashboard</a>
+    <a href="analytics.html" class="nav-link">Analytics</a>
+  </div>
+</nav>
+
+<!-- ── HERO ─────────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">World Heritage Convention</div>
+    <h1 class="hero-title">Heritage<br><em>Site Monitor</em></h1>
+    <p class="hero-sub">Tracking conservation, threats &amp; visitor trends<br>across 45 inscribed sites in 15 countries</p>
+    <div class="hero-stats">
+      <div class="hstat"><span class="hstat-n">45</span><span class="hstat-l">Sites</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-n">15</span><span class="hstat-l">Countries</span></div>
+      <div class="hstat-div"></div>
+      <div class="hstat"><span class="hstat-n">3</span><span class="hstat-l">Categories</span></div>
+    </div>
+  </div>
+</header>
+
+<!-- ── MAIN APP ──────────────────────────────────────────────── -->
+<main class="app">
+
+  <!-- Country selector -->
+  <section class="country-section">
+    <div class="section-label">Select a country</div>
+    <div class="country-section">
+     <div class="country-scroller-wrapper">
+       <button class="scroll-btn prev" aria-label="Scroll left">&#8249;</button>
+       <div class="country-track"></div>
+       <button class="scroll-btn next" aria-label="Scroll right">&#8250;</button>
+     </div>
+    </div>
+  </section>
+
+  <!-- Sites -->
+  <section class="sites-section" id="sitesSection" style="display:none">
+    <div class="section-label" id="sitesLabel">Sites</div>
+    <div class="sites-row" id="sitesRow"></div>
+  </section>
+
+  <!-- Detail panel -->
+  <section class="detail-section" id="detailSection" style="display:none">
+    <div id="detailPanel"></div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
